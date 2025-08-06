@@ -1,1 +1,13 @@
 @import 'tailwindcss';
+
+.space-canvas-container {
+	width: 100vw;
+	height: 100vh;
+	position: relative;
+}
+
+.space-canvas {
+	width: 100%;
+	height: 100%;
+	display: block;
+}

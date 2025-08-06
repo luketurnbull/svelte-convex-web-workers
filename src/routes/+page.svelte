@@ -1,12 +1,24 @@
 <script lang="ts">
 	import { useQuery } from 'convex-svelte';
-	import { api } from '../convex/_generated/api.js';
-	import { workers } from '$lib/stores/workers.svelte.js';
+	import { api } from '../convex/_generated/api';
+	import { calculator } from '$lib/stores/calculator.svelte';
 
 	const query = useQuery(api.tasks.get, {});
 </script>
 
-<button onclick={() => workers.increment()}>{workers.total}</button>
+{#await calculator.result}
+	Loading...
+{:then result}
+	{result}
+{/await}
+
+<button
+	onclick={() => {
+		calculator.setEquation('1 + 1');
+	}}
+>
+	Calculate
+</button>
 
 {#if query.isLoading}
 	Loading...
