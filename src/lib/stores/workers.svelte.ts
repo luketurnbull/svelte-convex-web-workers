@@ -1,24 +1,14 @@
 import type { Calculator } from '$lib/worker/calculator';
 import CalculatorWorker from '$lib/worker/calculator?worker';
-import * as Comlink from 'comlink';
-import { browser } from '$app/environment';
+import { wrap, type Remote } from 'comlink';
 
 export class Workers {
-	#calculator: Comlink.Remote<Calculator> | null = null;
+	#calculator: Remote<Calculator> = wrap<Calculator>(new CalculatorWorker());
 	#total = $state(0);
 
-	constructor() {
-		// Only create the worker in the browser environment
-		if (browser) {
-			this.#calculator = Comlink.wrap<Calculator>(new CalculatorWorker());
-		}
-	}
+	constructor() {}
 
 	async increment() {
-		if (!this.#calculator) {
-			throw new Error('Calculator worker is not available in SSR environment');
-		}
-
 		this.total = await this.#calculator.add(this.total, 1);
 	}
 
