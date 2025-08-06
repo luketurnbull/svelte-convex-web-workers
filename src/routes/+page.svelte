@@ -1,18 +1,12 @@
 <script lang="ts">
 	import { useQuery } from 'convex-svelte';
 	import { api } from '../convex/_generated/api.js';
-	import { workers } from '$lib/stores/game';
-
-	let number = $state(1);
+	import { workers } from '$lib/stores/workers.svelte.js';
 
 	const query = useQuery(api.tasks.get, {});
-
-	async function add(a: number, b: number) {
-		number = await workers.add(a, b);
-	}
 </script>
 
-<button onclick={() => add(number, 2)}>{number}</button>
+<button onclick={() => workers.increment()}>{workers.total}</button>
 
 {#if query.isLoading}
 	Loading...

@@ -5,6 +5,7 @@ import { browser } from '$app/environment';
 
 export class Workers {
 	#calculator: Comlink.Remote<Calculator> | null = null;
+	#total = $state(0);
 
 	constructor() {
 		// Only create the worker in the browser environment
@@ -13,12 +14,20 @@ export class Workers {
 		}
 	}
 
-	async add(a: number, b: number) {
+	async increment() {
 		if (!this.#calculator) {
 			throw new Error('Calculator worker is not available in SSR environment');
 		}
 
-		return await this.#calculator.add(a, b);
+		this.total = await this.#calculator.add(this.total, 1);
+	}
+
+	get total() {
+		return this.#total;
+	}
+
+	set total(value: number) {
+		this.#total = value;
 	}
 }
 
