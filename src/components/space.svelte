@@ -77,8 +77,7 @@
 			backward: keysPressed.has('KeyS'),
 			left: keysPressed.has('KeyA'),
 			right: keysPressed.has('KeyD'),
-			up: keysPressed.has('Space'),
-			down: keysPressed.has('ShiftLeft')
+			thrust: keysPressed.has('ShiftLeft')
 		};
 
 		renderEngine.handleShipMovement(movement);
@@ -129,10 +128,11 @@
 	<!-- Controls overlay -->
 	<div class="controls-overlay">
 		<div class="controls-info">
-			<h3>Ship Controls</h3>
-			<p>W/A/S/D - Move ship</p>
-			<p>Space - Move up</p>
-			<p>Shift - Move down</p>
+			<h3>Space Flight Controls</h3>
+			<p>W/S - Pitch up/down</p>
+			<p>A/D - Yaw left/right</p>
+			<p>Shift - Thrust forward</p>
+			<p>Ship maintains momentum in space!</p>
 		</div>
 	</div>
 </div>

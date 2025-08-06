@@ -203,20 +203,54 @@ export class RenderEngine {
 	private createShip(): Object3D {
 		const group = new Group();
 
-		// Simple ship geometry (you'll replace this with loaded models)
-		const bodyGeometry = new ConeGeometry(2, 8, 8);
+		// Main body (longer and more ship-like)
+		const bodyGeometry = new ConeGeometry(1.5, 12, 8);
 		const bodyMaterial = new MeshLambertMaterial({ color: 0x00ff00 });
 		const body = new Mesh(bodyGeometry, bodyMaterial);
 		body.rotation.x = Math.PI / 2;
 
-		// Engine glow
-		const engineGeometry = new SphereGeometry(1, 8, 8);
+		// Wings
+		const wingGeometry = new ConeGeometry(0.3, 8, 4);
+		const wingMaterial = new MeshLambertMaterial({ color: 0x008800 });
+
+		// Left wing
+		const leftWing = new Mesh(wingGeometry, wingMaterial);
+		leftWing.position.set(-4, 0, 0);
+		leftWing.rotation.z = Math.PI / 2;
+		leftWing.rotation.y = Math.PI / 2;
+
+		// Right wing
+		const rightWing = new Mesh(wingGeometry, wingMaterial);
+		rightWing.position.set(4, 0, 0);
+		rightWing.rotation.z = -Math.PI / 2;
+		rightWing.rotation.y = -Math.PI / 2;
+
+		// Engine glow (at the back)
+		const engineGeometry = new SphereGeometry(1.2, 8, 8);
 		const engineMaterial = new MeshBasicMaterial({ color: 0x0088ff });
 		const engine = new Mesh(engineGeometry, engineMaterial);
-		engine.position.z = -5;
+		engine.position.z = -8;
+
+		// Nose cone (red to show direction)
+		const noseGeometry = new ConeGeometry(0.8, 3, 8);
+		const noseMaterial = new MeshLambertMaterial({ color: 0xff0000 });
+		const nose = new Mesh(noseGeometry, noseMaterial);
+		nose.position.z = 8;
+		nose.rotation.x = -Math.PI / 2;
+
+		// Top fin (yellow to show up/down orientation)
+		const finGeometry = new ConeGeometry(0.2, 4, 4);
+		const finMaterial = new MeshLambertMaterial({ color: 0xffff00 });
+		const fin = new Mesh(finGeometry, finMaterial);
+		fin.position.set(0, 2, 0);
+		fin.rotation.x = Math.PI / 2;
 
 		group.add(body);
+		group.add(leftWing);
+		group.add(rightWing);
 		group.add(engine);
+		group.add(nose);
+		group.add(fin);
 
 		return group;
 	}
