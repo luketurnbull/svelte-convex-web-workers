@@ -2,7 +2,6 @@ import { expose } from 'comlink';
 import {
 	Scene,
 	PerspectiveCamera,
-	WebGLRenderer,
 	Mesh,
 	MeshLambertMaterial,
 	BufferGeometry,
@@ -19,6 +18,9 @@ import {
 	ConeGeometry
 } from 'three';
 
+import { GameRenderer } from './webgpu-renderer';
+import { ThirdPersonCamera } from './camera-controller';
+
 export interface RenderConfig {
 	width: number;
 	height: number;
@@ -34,31 +36,40 @@ export interface SceneObject {
 export class RenderEngine {
 	private scene!: Scene;
 	private camera!: PerspectiveCamera;
-	private renderer!: WebGLRenderer;
+	private renderer!: GameRenderer;
 	private canvas!: OffscreenCanvas;
 	private animationId: number | null = null;
 	private objects = new Map<string, Object3D>();
+	private cameraController!: ThirdPersonCamera;
 
 	async initialize(canvas: OffscreenCanvas, config: RenderConfig) {
+		console.log('🚀 Initializing RenderEngine...');
 		this.canvas = canvas;
 
 		this.scene = new Scene();
+		console.log('✅ Scene created');
+
 		this.camera = new PerspectiveCamera(75, config.width / config.height, 0.1, 10000);
+		console.log('✅ Camera created');
 
-		this.renderer = new WebGLRenderer({ 
-			canvas,
-			antialias: true,
-			alpha: false
-		});
+		// Use our new WebGPU renderer
+		this.renderer = new GameRenderer(canvas, config.width, config.height);
+		console.log('✅ Renderer created');
 
-		// For OffscreenCanvas, we need to set the size differently
-		this.renderer.setSize(config.width, config.height, false);
-		this.renderer.setClearColor(0x000011); // Deep space color
+		// Create third-person camera controller
+		this.cameraController = new ThirdPersonCamera(this.camera, new Vector3(0, 10, 20));
+		console.log('✅ Camera controller created');
 
 		await this.setupInitialScene();
-		this.startRenderLoop();
+		console.log('✅ Initial scene setup complete');
 
-		return { success: true, renderer: this.renderer.constructor.name };
+		this.startRenderLoop();
+		console.log('✅ Render loop started');
+
+		return {
+			success: true,
+			renderer: this.renderer.isWebGPUEnabled() ? 'WebGPU' : 'WebGL'
+		};
 	}
 
 	private async setupInitialScene() {
@@ -96,16 +107,23 @@ export class RenderEngine {
 	}
 
 	private startRenderLoop() {
+		console.log('🔄 Starting render loop...');
+		let frameCount = 0;
+
 		const animate = () => {
 			this.animationId = requestAnimationFrame(animate);
+			frameCount++;
 
-			// Rotate camera slightly for a cinematic feel
-			this.camera.position.x = Math.cos(Date.now() * 0.0001) * 100;
-			this.camera.position.z = Math.sin(Date.now() * 0.0001) * 100;
-			this.camera.lookAt(0, 0, 0);
+			// Update camera controller
+			this.cameraController.update();
 
 			// Render the scene
 			this.renderer.render(this.scene, this.camera);
+
+			// Log every 60 frames (once per second at 60fps)
+			if (frameCount % 60 === 0) {
+				console.log(`🎬 Rendered frame ${frameCount}`);
+			}
 		};
 		animate();
 	}
@@ -133,6 +151,11 @@ export class RenderEngine {
 
 		this.scene.add(mesh);
 		this.objects.set(object.id, mesh);
+
+		// If this is a ship, set it as camera target
+		if (object.type === 'ship' && object.id === 'player_ship') {
+			this.cameraController.setTarget(mesh);
+		}
 
 		return { success: true };
 	}
@@ -238,7 +261,7 @@ export class RenderEngine {
 	resize(width: number, height: number) {
 		this.camera.aspect = width / height;
 		this.camera.updateProjectionMatrix();
-		this.renderer.setSize(width, height, false);
+		this.renderer.resize(width, height);
 
 		return { success: true };
 	}

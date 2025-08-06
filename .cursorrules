@@ -1,0 +1,130 @@
+# Space Game Development Rules
+
+## Project Overview
+
+This is a massive multiplayer space game built with:
+
+- **SvelteKit**: UI and routing
+- **Three.js**: 3D rendering with WebGPU support
+- **Convex**: Real-time multiplayer backend
+- **Web Workers**: CPU-intensive tasks and rendering
+- **BetterAuth**: Authentication
+
+## Architecture Principles
+
+1. **Web Workers** handle all CPU-intensive tasks (rendering, physics, AI)
+2. **Main thread** handles UI, user input, and Convex communication
+3. **Convex** manages game state, player data, and real-time updates
+4. **SvelteKit** provides reactive UI with runes
+
+## Code Style
+
+- Use **TypeScript** for all files
+- Prefer **classes** over functions for game objects
+- Use **Svelte runes** ($state, $derived, $effect) for reactivity
+- Keep **web workers** focused on specific tasks
+- Use **interfaces** for data contracts between components
+
+## File Structure
+
+```
+src/
+├── lib/
+│   ├── worker/          # Web worker modules
+│   │   ├── renderer/    # Three.js rendering
+│   │   ├── physics/     # Physics calculations
+│   │   └── ai/          # AI processing
+│   ├── stores/          # Svelte stores
+│   ├── game/            # Game logic
+│   └── convex/          # Convex functions
+├── components/          # Svelte components
+└── routes/             # SvelteKit routes
+```
+
+## Game Objects
+
+- **Ships**: Player-controlled vessels with stats, crew, equipment
+- **Asteroids**: Resource nodes with different materials
+- **Resources**: Minerals, gases, artifacts with market values
+- **Players**: User accounts with inventory, money, achievements
+
+## Performance Guidelines
+
+- Use **WebGPU** when available, fallback to WebGL
+- **Batch updates** to Convex (don't send every frame)
+- **LOD systems** for distant objects
+- **Object pooling** for frequently created/destroyed objects
+- **Frustum culling** to only render visible objects
+
+## Convex Integration
+
+- Use **queries** for reading game state
+- Use **mutations** for updating player data
+- Use **actions** for complex operations
+- Use **subscriptions** for real-time updates
+- **Batch operations** when possible
+
+## Web Worker Communication
+
+- Use **Comlink** for worker communication
+- Keep **message passing** minimal and efficient
+- **Transfer objects** when possible to avoid copying
+- Use **typed interfaces** for all worker APIs
+
+## Error Handling
+
+- **Graceful fallbacks** for WebGPU → WebGL
+- **Error boundaries** in Svelte components
+- **Retry logic** for network operations
+- **User-friendly error messages**
+
+## Development Workflow
+
+1. **Plan the feature** in the game context
+2. **Design the data model** in Convex
+3. **Implement the logic** in appropriate worker
+4. **Create the UI** in SvelteKit
+5. **Test with multiple players**
+
+## Common Patterns
+
+- **Event-driven architecture** for game events
+- **State machines** for ship/player states
+- **Observer pattern** for UI updates
+- **Factory pattern** for creating game objects
+- **Strategy pattern** for different AI behaviors
+
+## Security Considerations
+
+- **Validate all inputs** on both client and server
+- **Rate limiting** for expensive operations
+- **Sanitize user data** before storing
+- **Use Convex auth** for user identification
+
+## Testing Strategy
+
+- **Unit tests** for game logic
+- **Integration tests** for Convex functions
+- **Performance tests** for rendering
+- **Multiplayer tests** for real-time features
+
+## Documentation
+
+- **Comment complex algorithms**
+- **Document worker APIs**
+- **Explain game mechanics**
+- **Keep README updated**
+
+## Performance Targets
+
+- **60fps** rendering with 1000+ objects
+- **<100ms** latency for player actions
+- **<1s** load time for game world
+- **Smooth UI** even during heavy rendering
+
+## Game Balance
+
+- **Economy**: Supply/demand affects prices
+- **Progression**: Meaningful upgrades and goals
+- **Social**: Alliances, trading, communication
+- **Exploration**: New areas, rare resources, secrets
