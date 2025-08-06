@@ -1,25 +1,15 @@
 <script lang="ts">
 	import { useQuery } from 'convex-svelte';
 	import { api } from '../convex/_generated/api.js';
-	import { onMount } from 'svelte';
-	import * as Comlink from 'comlink';
-	import type { CalculatorType } from '$lib/worker/calculator';
-	import CalculatorWorker from '$lib/worker/calculator?worker';
-
-	let calculator: Comlink.Remote<CalculatorType>;
-
-	onMount(async () => {
-		calculator = Comlink.wrap<CalculatorType>(new CalculatorWorker());
-	});
+	import { workers } from '$lib/stores/game';
 
 	let number = $state(1);
 
-	async function add(a: number, b: number) {
-		const result = await calculator.add(a, b);
-		number = result;
-	}
-
 	const query = useQuery(api.tasks.get, {});
+
+	async function add(a: number, b: number) {
+		number = await workers.add(a, b);
+	}
 </script>
 
 <button onclick={() => add(number, 2)}>{number}</button>

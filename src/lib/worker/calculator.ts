@@ -8,8 +8,4 @@ export class Calculator {
 	}
 }
 
-export type CalculatorType = Calculator;
-
-// Create an instance and expose it
-const calculator = new Calculator();
-Comlink.expose(calculator);
+Comlink.expose(new Calculator());
