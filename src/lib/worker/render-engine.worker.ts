@@ -20,6 +20,7 @@ import {
 
 import { GameRenderer } from './webgpu-renderer';
 import { ThirdPersonCamera } from './camera-controller';
+import { ShipController, type ShipMovement } from './ship-controller';
 
 export interface RenderConfig {
 	width: number;
@@ -41,6 +42,7 @@ export class RenderEngine {
 	private animationId: number | null = null;
 	private objects = new Map<string, Object3D>();
 	private cameraController!: ThirdPersonCamera;
+	private shipController!: ShipController;
 
 	async initialize(canvas: OffscreenCanvas, config: RenderConfig) {
 		console.log('🚀 Initializing RenderEngine...');
@@ -106,6 +108,13 @@ export class RenderEngine {
 		this.scene.add(starField);
 	}
 
+	// Handle keyboard input for ship movement
+	handleShipMovement(movement: Partial<ShipMovement>) {
+		if (this.shipController) {
+			this.shipController.updateMovement(movement);
+		}
+	}
+
 	private startRenderLoop() {
 		console.log('🔄 Starting render loop...');
 		let frameCount = 0;
@@ -113,6 +122,11 @@ export class RenderEngine {
 		const animate = () => {
 			this.animationId = requestAnimationFrame(animate);
 			frameCount++;
+
+			// Update ship controller
+			if (this.shipController) {
+				this.shipController.update();
+			}
 
 			// Update camera controller
 			this.cameraController.update();
@@ -152,9 +166,11 @@ export class RenderEngine {
 		this.scene.add(mesh);
 		this.objects.set(object.id, mesh);
 
-		// If this is a ship, set it as camera target
+		// If this is a ship, set it as camera target and create ship controller
 		if (object.type === 'ship' && object.id === 'player_ship') {
 			this.cameraController.setTarget(mesh);
+			this.shipController = new ShipController(mesh);
+			console.log('🎮 Ship controller created for player ship');
 		}
 
 		return { success: true };
